@@ -73,6 +73,7 @@
         publishWebProjects: false
         arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
         zipAfterPublish: true
+  ##########
   
   # Se agregó estas líneas para usar plantilla. IAR sab 13MAY2023
   - template: templates/build.yml
