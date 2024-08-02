@@ -4,6 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 # Comenté el código para reemplazar por nueva versión. IAR lun 16OCT2023
+# apunta  a la rama main
 # trigger:
 # - main
 
