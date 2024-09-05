@@ -3,8 +3,12 @@
 # Add steps that run tests, create a NuGet package, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
+
 # IAR sab 13MAY2023
 # código original
+# Comenté el código para reemplazar por nueva versión. IAR lun 16OCT2023
+# apunta  a la rama main
+
 # trigger:
 # - main
 
@@ -18,22 +22,26 @@
 # - script: dotnet build --configuration $(buildConfiguration)
 #   displayName: 'dotnet build $(buildConfiguration)'
 
-  trigger:
-  - '*'
+
+trigger:
+- '*'
   
-  pool:
-    vmImage: ubuntu-latest
+pool:
+    vmImage: 'ubuntu-20.04'
+    demands:
+    - npm
   
-  variables:
+variables:
     buildConfiguration: 'Release'
     wwwrootDir: 'Tailspin.SpaceGame.Web/wwwroot'
     dotnetSdkVersion: '6.x'
   
-  steps:
+
+steps:
   - task: UseDotNet@2
     displayName: 'Use .NET SDK $(dotnetSdkVersion)'
     inputs:
-      packageType: sdk
+
       version: '$(dotnetSdkVersion)'
   
   - task: Npm@1
@@ -64,26 +72,41 @@
       arguments: '--no-restore --configuration $(buildConfiguration)'
       projects: '**/*.csproj'
 
+
 # Se agregó estas líneas para una 2a compilación y publicarla. IAR sab 13MAY2023
-  - task: DotNetCoreCLI@2
-    displayName: 'Publish the project - $(buildConfiguration)'
-    inputs:
-        command: 'publish'
-        projects: '**/*.csproj'
-        publishWebProjects: false
-        arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
-        zipAfterPublish: true
+  #- task: DotNetCoreCLI@2
+  #  displayName: 'Publish the project - $(buildConfiguration)'
+   # inputs:
+   #     command: 'publish'
+   #     projects: '**/*.csproj'
+   #     publishWebProjects: false
+   #     arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
+   #     zipAfterPublish: true
   ##########
   
   # Se agregó estas líneas para usar plantilla. IAR sab 13MAY2023
-  - template: templates/build.yml
-    parameters:
-      buildConfiguration: 'Debug'
+  #- template: templates/build.yml
+  #  parameters:
+  #    buildConfiguration: 'Debug'
       
-  - template: templates/build.yml
-    parameters:
-      buildConfiguration: 'Release'
+  #- template: templates/build.yml
+  #  parameters:
+  #    buildConfiguration: 'Release'
   ##########
+  #- task: PublishBuildArtifacts@1
+  #  displayName: 'Publish Artifact: drop'
+  #  condition: succeeded()
+  
+  - task: DotNetCoreCLI@2
+    displayName: 'Publish the project - $(buildConfiguration)'
+    inputs:
+      command: 'publish'
+      projects: '**/*.csproj'
+      publishWebProjects: false
+      arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
+      zipAfterPublish: true
+  
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'
     condition: succeeded()
+
