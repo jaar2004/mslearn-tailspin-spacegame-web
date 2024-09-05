@@ -57,16 +57,43 @@ steps:
     arguments: '--no-restore --configuration $(buildConfiguration)'
     projects: '**/*.csproj'
 
+# IAR mar 03SEP2024
+# Código agregado para code coverage
+- task: DotNetCoreCLI@2
+  displayName: 'Install .NET tools from local manifest'
+  inputs:
+    command: custom
+    custom: tool
+    arguments: 'restore'
 
+# IAR lun 02SEP2024
+# Código agregado para pruebas unitarias
 - task: DotNetCoreCLI@2
   displayName: 'Run unit tests - $(buildConfiguration)'
   inputs:
       command: 'test'
-      arguments: '--no-build --configuration $(buildConfiguration)'
+      #arguments: '--no-build --configuration $(buildConfiguration)'
+      # IAR mar 03SEP2024
+      # se actualizan argumentos para cubrir  Code coverage
+      arguments: '--no-build --configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/'
       publishTestResults: true
       projects: '**/*.Tests.csproj'
+# IAR lun 02SEP2024
 
-      
+- task: DotNetCoreCLI@2
+  displayName: 'Create code coverage report'
+  inputs:
+    command: custom
+    custom: tool
+    arguments: 'run reportgenerator -reports:$(Build.SourcesDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:HtmlInline_AzurePipelines'
+
+- task: PublishCodeCoverageResults@1
+  displayName: 'Publish code coverage report'
+  inputs:
+    codeCoverageTool: 'cobertura'
+    summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
+# IAR mar 03SEP2024
+   
 - task: DotNetCoreCLI@2
   displayName: 'Publish the project - $(buildConfiguration)'
   inputs:
